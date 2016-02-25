@@ -132,17 +132,17 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
 <div id="mainContainer">
 <div id="ankrom-head">
   <div id="logo-head">
-    <img src="img/logo.png" style="float: left; margin-top: 17px; margin-left: 50px;">
+    <a href="http://www.ankrommoisan.com" target="_blank"><img src="img/logo.png" style="float: left; margin-top: 17px; margin-left: 50px;"></a>
     <p style="padding-top: 25px;padding-right:110px">
-      <a href="#">Ankrom Moisan Architects&nbsp&nbsp</a><span style="color:rgb(80,80,80);">/</span><a href="#"> Mapping and Data Analysis</a>
+      <span>Ankrom Moisan Architects&nbsp&nbsp</span><span style="color:rgb(80,80,80);">/</span><span> Mapping and Data Analysis</span>
     </p>
   </div>
-  <div id="black-head" style="background-color: black; width: 100%; height: 20px; margin-top: 1px;"><a href="#" id="discBtn" style="float:right; margin-top:3px; margin-right:20px; font-size:.8em; color:#FC992B;">Disclaimer</a></div>
+  <div id="black-head" style="background-color: black; width: 100%; height: 20px; margin-top: 1px;"></div>
 </div>
 <div class="col-md-2 main"></div>
 <div class="col-md-8 main" id="centerCol">
   <div class="header">
-    <nav class="navbar navbar-default" style="margin-bottom:50px;">
+    <nav class="navbar navbar-default" style="margin-bottom:40px;">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -161,7 +161,11 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
       </div>
     </nav>
 
-    <span style="font-size:3.5em;">Density and Transit</span><br /><span style="font-size:2em">Studying relationships</span><br /><br /><br /><hr><br />
+    <span style="font-size:3.5em;">Density and Transit</span><br /><span style="font-size:2em">Studying relationships</span><br /><br /><br /><hr>
+    <p style="text-align:center;font-size:.75em;width:80%;margin-left:auto;margin-right:auto;margin-bottom:50px;">
+      This site is intended to provide a public outlet for in-progress research that Ankrom Moisan Architects is conducting. All of the data presented here is provided in a spirit of sharing ideas about the development of cities. It is intended for general interest usage and should not be used as a basis for financial decisions.
+    </p>
+    <br />
   </div>
   <div class="mapContainer">
     <div id="headertext" style="width:80%; margin-left:auto; margin-right:auto;">
@@ -196,7 +200,9 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
       Finally, the value we are most intersted in, degree of housing under-utilization. For this we simply
       take the transit access score and divide it by the housing density. This gives higher values to sites
       with great transit access but very low housing density. Many of these have obvious potential for higher
-      utilization.
+      utilization. Some sites with high FAR, such as in the Central Business District, show under utilization
+      however keep in mind that this is measuring specifically <em>housing</em> density. Even though these
+      are dense sites, they do not posses a high number of housing units per acre.
     </p>
     <div class="map" id='finalMap'></div>
   </div>
@@ -205,7 +211,7 @@ if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine
 </div>
 <script>
 $('#discBtn').on('click',function(){
-  alert('This site is intended to provide a public outlet for in-progress research that Ankrom Moisan Architects is conducting. All of the data presented here is provided in a spirit of sharing ideas about the development of cities. It is intended for general interest usage and should not be used as a basis for financial decisions.');
+  alert('');
 })
 L.mapbox.accessToken = 'pk.eyJ1IjoicnlhbnRtIiwiYSI6ImNpaDgycjExZzB0NDR1MWtpbWdkeDhxbmIifQ.AamjhGik8yPxK5V71kzHdw';
   var densityMap = L.mapbox.map('densityMap', 'mapbox.light').setView([45.5200, -122.6819], 13);
