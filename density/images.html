@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Transit & Density</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,700' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Merriweather+Sans:400,300,700' rel='stylesheet' type='text/css'>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script src='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
+<style>
+  body {
+    margin:0;
+    padding:0;
+    -webkit-font-smoothing: antialiased;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
+    background-color: #e6e1df;
+  }
+  .map {
+    width:100%;
+    /*height: 600px;*/
+    margin-top: 10px;
+    margin-bottom: 50px;
+  }
+  .main {
+    /*height: 100px;*/
+  }
+  .col-md-8 {
+    background-color: #FFFFFF;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-top: 20px;
+    box-shadow: 0 0 12px 1px rgba(87,87,87,.2);
+  }
+  .mapContainer {
+    padding-right: 50px;
+    padding-left: 50px;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    font-size: 1.5em;
+    /*text-align: center;*/
+  }
+  .header {
+    text-align: center;
+    /*font-family: 'Merriweather', serif;*/
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+  }
+  #headertext{
+    font-size: .8em;
+    width:90%;
+    text-align: justify;
+    margin-top:15px;
+    margin-bottom:60px;
+  }
+  #loadtext {
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.5;
+    letter-spacing: -0.004em;
+    color: rgba(0,0,0,0.8);
+    text-align: center;
+    position: fixed;
+    width: 100%;
+    top: 68%;
+    z-index: 1000;
+  }
+  .map-legend ul {
+    list-style: none;
+    padding-left: 0;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    }
+  .map-legend .swatch {
+    width:20px;
+    height:20px;
+    float:left;
+    margin-right:10px;
+    }
+  .leaflet-popup-close-button {
+    display: none;
+    }
+  .leaflet-popup-content-wrapper {
+    pointer-events: none;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    }
+  .leaflet-container {
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+  }
+  #ankrom-head{
+    margin-bottom: 40px;
+  }
+  #logo-head{
+    background: radial-gradient(50% 50%, rgb(199, 189, 184), rgb(160, 144, 136));
+    width: 100%;
+    height: 80px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 20.5px;
+    font-weight: 300;
+    font-style: normal;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  #logo-head a{
+    font-family: 'Open Sans', sans-serif;
+    font-size: 20.5px;
+    font-weight: 300;
+    font-style: normal;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+<div id="mainContainer">
+<div id="ankrom-head">
+  <div id="logo-head">
+    <img src="img/logo.png" style="float: left; margin-top: 17px; margin-left: 50px;">
+    <p style="padding-top: 25px;padding-right:110px">
+      <a href="#">Ankrom Moisan Architects&nbsp&nbsp</a><span style="color:rgb(80,80,80);">/</span><a href="#"> Mapping and Data Analysis</a>
+    </p>
+  </div>
+  <div id="black-head" style="background-color: black; width: 100%; height: 20px; margin-top: 1px;"><a href="#" id="discBtn" style="float:right; margin-top:3px; margin-right:20px; font-size:.8em; color:#FC992B;">Disclaimer</a></div>
+</div>
+<div class="col-md-2 main"></div>
+<div class="col-md-8 main" id="centerCol">
+  <div class="header">
+    <nav class="navbar navbar-default" style="margin-bottom:50px;">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li class="active"><a href="./index.html">Maps</a></li>
+            <li><a href="./method.html" target="_blank">Methodology</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <span style="font-size:3.5em;">Density and Transit</span><br /><span style="font-size:2em">Studying relationships</span><br /><br /><br /><hr><br />
+  </div>
+  <div class="mapContainer">
+    <div id="headertext" style="width:80%; margin-left:auto; margin-right:auto;">
+      <span style="font-size:25px;">Portland has one of the nations best public transit systems.</span>
+      <p style="margin-top: 15px; color: #777777">
+        It also continues to densify as it grows and pushes against it's Urban Growth Boundary.
+        One challenge of that growth is knowing which areas may benefit most from the increased density.<br /><br /> Sites where transit access is abundant are naturally suited
+        to growing denser, and many already have, but some may have been overlooked. These sites present an opportunity for higher density residential development.
+        This study investigates if there are sites in Portland where transit is plentiful but housing density is still sparse.
+      </p>
+    </div>
+    <hr><br />
+
+    <span>Housing Density</span>
+    <p style="font-size: .65em;width:90%; text-align: justify;margin-top:15px;">
+      First we want to look at the density of housing in Portland. The 2010 US Census gives us a
+      measure that we can convert to dwelling units per acre. There is a huge variability here, and
+      the map is scaled to highlight the lower end of it.
+    </p>
+    <div class="map" id='densityMap'><img alt="" src="img/HousingDensity.png" style="width:100%;"></div>
+    <span>Transit Access</span>
+    <p style="font-size: .65em;width:90%; text-align: justify;margin-top:15px;">
+      Next we want to look at how accessible public transit is to each block. All of Portland's
+      transit stops are mapped and their catchment area is projected over the blocks. The overlapping area
+      is added up and divided by the size of the block to get a score,
+      representing the amount of transit available a short distance from any point on the block.
+      Again, very high variability led us to truncate the scale to better represent important differences.
+    </p>
+    <div class="map" id='transitMap'><img alt="" src="img/TransitAccess.png" style="width:100%;"></div>
+    <span>High transit access, but low density</span>
+    <p style="font-size: .65em;width:90%; text-align: justify;margin-top:15px;">
+      Finally, the value we are most intersted in, degree of housing under-utilization. For this we simply
+      take the transit access score and divide it by the housing density. This gives higher values to sites
+      with great transit access but very low housing density. Many of these have obvious potential for higher
+      utilization.
+    </p>
+    <div class="map" id='finalMap'><img alt="" src="img/UnderUtilized.png" style="width:100%;"></div>
+  </div>
+</div>
+<div class="col-md-2 main"></div>
+</div>
+<script>
+$('#discBtn').on('click',function(){
+  alert('This site is intended to provide a public outlet for in-progress research that Ankrom Moisan Architects is conducting. All of the data presented here is provided in a spirit of sharing ideas about the development of cities. It is intended for general interest usage and should not be used as a basis for financial decisions.');
+})
+// L.mapbox.accessToken = 'pk.eyJ1IjoicnlhbnRtIiwiYSI6ImNpaDgycjExZzB0NDR1MWtpbWdkeDhxbmIifQ.AamjhGik8yPxK5V71kzHdw';
+//   var densityMap = L.mapbox.map('densityMap', 'mapbox.light').setView([45.5200, -122.6819], 13);
+//   var transitMap = L.mapbox.map('transitMap', 'mapbox.light').setView([45.5200, -122.6819], 13);
+//   var finalMap = L.mapbox.map('finalMap', 'mapbox.light').setView([45.5200, -122.6819], 13);
+//   var popup = new L.Popup({ autoPan: false });
+//
+//   var densityLayer = L.geoJson(false, {
+//     style: getStyleDensity,
+//     //onEachFeature: onEachFeature
+//   }).addTo(densityMap);
+//
+//   var transitLayer = L.geoJson(false, {
+//     style: getStyleTransit,
+//     //onEachFeature: onEachFeature
+//   }).addTo(transitMap);
+//
+//   var finalLayer = L.geoJson(false, {
+//     style: getStyleFinal,
+//     onEachFeature: onEachFeature
+//   }).addTo(finalMap);
+//
+//   // $.get('https://s3-us-west-2.amazonaws.com/s3arch-dev/minifiedData.json', function(raw){
+//   //   var data = JSON.parse(raw);
+//   //   for(var i=0;i<data.features.length;i++){
+//   //     var block = data.features[i].properties;
+//   //     if(block.HOUSE_DENSITY < 0.1){
+//   //       block.NEW_SCORE = block.TRANSIT_SCORE_IMP;
+//   //     }
+//   //   }
+//   //
+//   //   densityLayer.addData(data);
+//   //   transitLayer.addData(data);
+//   //   finalLayer.addData(data);
+//   // });
+//
+//   function getStyleDensity(feature) {
+//     return {
+//       weight: 1,
+//       opacity: 0.1,
+//       color: 'black',
+//       fillOpacity: 0.7,
+//       fillColor: getColorDensity(feature.properties.HOUSE_DENSITY)
+//     };
+//   }
+//   function getColorDensity(d) {
+//     return d > 24.5 ? '#084594' :
+//       d > 21  ? '#2171b5' :
+//       d > 17.5  ? '#4292c6' :
+//       d > 14  ? '#6baed6' :
+//       d > 10.5   ? '#9ecae1' :
+//       d > 7   ? '#c6dbef' :
+//       d > 3.5   ? '#deebf7' :
+//       '#f7fbff';
+//   }
+//   densityMap.legendControl.addLegend(getLegendDensityHTML());
+//   function getLegendDensityHTML() {
+//     var grades = [0, 3.5, 7, 10.5, 14, 17.5, 21, 24.5],
+//     labels = [],
+//     from, to;
+//
+//     for (var i = 0; i < grades.length; i++) {
+//       from = grades[i];
+//       to = grades[i + 1];
+//
+//       labels.push(
+//         '<li><span class="swatch" style="background:' + getColorDensity(from + 1) + '"></span> ' +
+//         from + (to ? '&ndash;' + to : '+')) + '</li>';
+//     }
+//
+//     return '<span>Housing Density (DU/Acre)</span><ul>' + labels.join('') + '</ul>';
+//   }
+//
+//   function getStyleTransit(feature) {
+//     return {
+//       weight: 1,
+//       opacity: 0.1,
+//       color: 'black',
+//       fillOpacity: 0.7,
+//       fillColor: getColorTransit(feature.properties.TRANSIT_SCORE_IMP)
+//     };
+//   }
+//   function getColorTransit(d) {
+//     return d > 28 ? '#084594' :
+//       d > 24  ? '#2171b5' :
+//       d > 20  ? '#4292c6' :
+//       d > 16  ? '#6baed6' :
+//       d > 12   ? '#9ecae1' :
+//       d > 8   ? '#c6dbef' :
+//       d > 4   ? '#deebf7' :
+//       '#f7fbff';
+//   }
+//   transitMap.legendControl.addLegend(getLegendTransitHTML());
+//   function getLegendTransitHTML() {
+//     var grades = [0, 4, 8, 12, 16, 20, 24, 28],
+//     labels = [],
+//     from, to;
+//
+//     for (var i = 0; i < grades.length; i++) {
+//       from = grades[i];
+//       to = grades[i + 1];
+//
+//       labels.push(
+//         '<li><span class="swatch" style="background:' + getColorTransit(from + 1) + '"></span> ' +
+//         from + (to ? '&ndash;' + to : '+')) + '</li>';
+//     }
+//
+//     return '<span>Transit Access Score<br />(Higher is better)</span><ul>' + labels.join('') + '</ul>';
+//   }
+//
+//   function getStyleFinal(feature) {
+//     return {
+//       weight: 1,
+//       opacity: 0.1,
+//       color: 'black',
+//       fillOpacity: 0.7,
+//       fillColor: getColorFinal(feature.properties.NEW_SCORE)
+//     };
+//   }
+//   function getColorFinal(d) {
+//     return d > 42 ? '#084594' :
+//       d > 36  ? '#2171b5' :
+//       d > 30  ? '#4292c6' :
+//       d > 24  ? '#6baed6' :
+//       d > 18   ? '#9ecae1' :
+//       d > 12   ? '#c6dbef' :
+//       d > 6   ? '#deebf7' :
+//       '#f7fbff';
+//   }
+//   finalMap.legendControl.addLegend(getLegendFinalHTML());
+//   function getLegendFinalHTML() {
+//     var grades = [0, 6, 12, 18, 24, 30, 36, 42],
+//     labels = [],
+//     from, to;
+//
+//     for (var i = 0; i < grades.length; i++) {
+//       from = grades[i];
+//       to = grades[i + 1];
+//
+//       labels.push(
+//         '<li><span class="swatch" style="background:' + getColorFinal(from + 1) + '"></span> ' +
+//         from + (to ? '&ndash;' + to : '+')) + '</li>';
+//     }
+//
+//     return '<span>Blocks with high transit<br /> but low housing density</span><ul>' + labels.join('') + '</ul>';
+//   }
+//
+// function onEachFeature(feature, layer) {
+//     layer.on({
+//         mousemove: mousemove,
+//         mouseout: mouseout,
+//         click: zoomToFeature
+//     });
+// }
+//
+// var closeTooltip;
+//
+// function mousemove(e) {
+//     var layer = e.target;
+//
+//     popup.setLatLng(e.latlng);
+//     popup.setContent('<div class="marker-title">' + layer.feature.properties.NAME10 + '</div>' +
+//         Math.round((layer.feature.properties.HOUSE_DENSITY)* 100)/100 + ' DU/Acre<br />' + Math.round(layer.feature.properties.TRANSIT_SCORE_IMP) +
+//         ' Transit Score<br />' + Math.round((layer.feature.properties.NEW_SCORE)*100)/100 + ' Under-utilization Score');
+//
+//     if (!popup._map) popup.openOn(finalMap);
+//     window.clearTimeout(closeTooltip);
+//
+//     //highlight feature
+//     layer.setStyle({
+//         weight: 3,
+//         opacity: 0.3,
+//         fillOpacity: 0.9
+//     });
+//
+//     if (!L.Browser.ie && !L.Browser.opera) {
+//         layer.bringToFront();
+//     }
+// }
+//
+// function mouseout(e) {
+//     layer = e.target;
+//     layer.setStyle({
+//         weight: 1,
+//         opacity: 0.1,
+//         fillOpacity: 0.7
+//     });
+//     closeTooltip = window.setTimeout(function() {
+//         finalMap.closePopup();
+//     }, 100);
+// }
+//
+// function zoomToFeature(e) {
+//     finalMap.fitBounds(e.target.getBounds());
+// }
+</script>
+</body>
+</html>
