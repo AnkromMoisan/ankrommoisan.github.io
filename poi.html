@@ -72,14 +72,17 @@ L.mapbox.accessToken = 'pk.eyJ1IjoibW9udHltb29zZTIxIiwiYSI6IjZGdDZJZlEifQ.HmDYRX
 var map = L.mapbox.map('map')
     .setView([47.6178291, -122.3383725], 16);
 L.mapbox.styleLayer('mapbox://styles/montymoose21/cimqkm1ja00kvb3klibkf6fyv').addTo(map);
+
 // Credit Foursquare for their wonderful data
 map.attributionControl
     .addAttribution('<a href="https://foursquare.com/">Places data from Foursquare</a>');
+
 // Create a Foursquare developer account: https://developer.foursquare.com/
 // NOTE: CHANGE THESE VALUES TO YOUR OWN:
 // Otherwise they can be cycled or deactivated with zero notice.
 var CLIENT_ID = 'UDYSZVLVUI0OHJ04X0VQPT2O0ICIPSC5X0FMOMCBCO5I5GG4';
 var CLIENT_SECRET = 'FEHI2PU0KKWQCOTQJ50D1OPKE0IDYVQEUGTOOAYNQL02HMLU';
+
 // https://developer.foursquare.com/start/search
 var hotel_search = 'https://api.foursquare.com/v2/venues/search' +
   '?client_id=CLIENT_ID' +
@@ -90,6 +93,7 @@ var hotel_search = 'https://api.foursquare.com/v2/venues/search' +
   '&intent=browse' +
   '&categoryId=4bf58dd8d48988d1fa931735' +
   '&callback=?';
+
 var food_search = 'https://api.foursquare.com/v2/venues/search' +
   '?client_id=CLIENT_ID' +
   '&client_secret=CLIENT_SECRET' +
@@ -99,6 +103,7 @@ var food_search = 'https://api.foursquare.com/v2/venues/search' +
   '&intent=browse' +
   '&categoryId=4d4b7105d754a06374d81259' +
   '&callback=?';
+
 var night_search = 'https://api.foursquare.com/v2/venues/search' +
   '?client_id=CLIENT_ID' +
   '&client_secret=CLIENT_SECRET' +
@@ -108,6 +113,7 @@ var night_search = 'https://api.foursquare.com/v2/venues/search' +
   '&intent=browse' +
   '&categoryId=4d4b7105d754a06376d81259' +
   '&callback=?';
+
 var retail_search = 'https://api.foursquare.com/v2/venues/search' +
   '?client_id=CLIENT_ID' +
   '&client_secret=CLIENT_SECRET' +
@@ -117,13 +123,17 @@ var retail_search = 'https://api.foursquare.com/v2/venues/search' +
   '&intent=browse' +
   '&categoryId=4d4b7105d754a06378d81259' +
   '&callback=?';
+
 // Keep our place markers organized in a nice group.
 var foursquarePlaces = L.layerGroup().addTo(map);
+
 // Call reqeusts for various searches:
 GetJson(hotel_search, "Hotel");
 GetJson(food_search, "Food");
 GetJson(night_search, "NightLife")
 GetJson(retail_search, "Retail")
+
+
 function GetJson(request, category){
   // Use jQuery to make an AJAX request to Foursquare to load markers data.
   $.getJSON(request
@@ -131,12 +141,14 @@ function GetJson(request, category){
       .replace('CLIENT_SECRET', CLIENT_SECRET)
       .replace('LATLON', map.getCenter().lat +
           ',' + map.getCenter().lng), function(result, status) {
+
       if (status !== 'success') return alert('Request to Foursquare failed');
       console.log(result);
       // Transform each venue result into a marker on the map.
       for (var i = 0; i < result.response.venues.length; i++) {
         var venue = result.response.venues[i];
         //if(VerifyCategory(venue)) continue;
+
         var latlng = L.latLng(venue.location.lat, venue.location.lng);
         var marker = L.marker(latlng, {
             icon: L.mapbox.marker.icon({
@@ -151,6 +163,8 @@ function GetJson(request, category){
       }
   });
 }
+
+
 function ColorByFunction(category){
   var color;
   if(category == "Hotel") {
@@ -172,6 +186,7 @@ function VerifyCategory(venue){
     return true;
   }
 }
+
 var circle_options = {
     color: '#c79b2c',      // Stroke color
     opacity: 1,         // Stroke opacity
@@ -179,20 +194,18 @@ var circle_options = {
     fillColor: '#f2e1bb',  // Fill color
     fillOpacity: 0.2    // Fill opacity
 };
-var circle_one = L.circle(map.getCenter(), 500, circle_options).addTo(map);
+
+var circle_one = L.circle(map.getCenter(), 500, circle_options).addTo(foursquarePlaces);
+
 $('#search-btn').click(function(event){
     SearchLocation($('#search').val());
 });
 $('#search').keypress(function(e){
   if(e.which == 13){
-    if($('#filter-action').hasClass('active')){
-      SearchFilter($('#search').val());
-    }
-    if($('#location-action').hasClass('active')){
-      SearchLocation($('#search').val());
-    }
+    SearchLocation($('#search').val());
   }
 });
+
 function SearchLocation(query){
   query = query.replace(/\s+/g, '+');
   $.ajax({
@@ -203,11 +216,13 @@ function SearchLocation(query){
       var coordinates = result.features[0].geometry.coordinates;
       console.log(result.features[0]);
       map.setView([coordinates[1],coordinates[0]], 16);
+
+      foursquarePlaces.clearLayers();
       GetJson(hotel_search, "Hotel");
       GetJson(food_search, "Food");
       GetJson(night_search, "NightLife")
       GetJson(retail_search, "Retail")
-      var circle_one = L.circle(map.getCenter(), 500, circle_options).addTo(map);
+      var circle_one = L.circle(map.getCenter(), 500, circle_options).addTo(foursquarePlaces);
     }
   });
 }
