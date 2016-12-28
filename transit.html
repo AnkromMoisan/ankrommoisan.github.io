@@ -73,7 +73,9 @@ function FormatData(data){
             "properties":{
                 "transitType":feature.type == 'rail' ? 0 : 1,
                 "signMessageLong": feature.signMessageLong,
-                "delay": Math.abs(feature.delay)
+                "delay": Math.abs(feature.delay),
+                "inCongestion": feature.inCongestion,
+                "loadPercentage": feature.loadPercentage
             }
         };
         pointData.features.push(point);
@@ -177,6 +179,10 @@ map.on('click', function (e) {
 
     var feature = features[0];
     var html = '</br>Seconds off schedule: ' + feature.properties.delay;
+    if (feature.properties.transitType == 1){
+        html += ('</br>In Congestion: ' + (feature.properties.inCongestion ? 'Yes' : 'No'));
+        html += ('</br>Currently Full: ' + (feature.properties.loadPercentage > 50 ? 'Yes' : 'No'));
+    }
 
     // Populate the popup and set its coordinates
     // based on the feature found.
