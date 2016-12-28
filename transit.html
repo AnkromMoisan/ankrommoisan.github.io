@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.29.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.29.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+        #colorLegend{
+            width: 42px;
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            background-color: rgba(255,255,255,.5);
+            z-index: 2;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1em;
+        }
+        .legendItem{
+            margin-bottom: 5px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+        .colorbox{
+            width:30px;
+            height:20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="colorLegend">
+      <div class="legendItem"><div class="colorbox" style="background-color: #fa946e"></div>Rail</div>
+      <div class="legendItem"><div class="colorbox" style="background-color: #c091e6"></div>Bus</div>
+    </div>
+    <div id='map'></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibW9udHltb29zZTIxIiwiYSI6IjZGdDZJZlEifQ.HmDYRXH_GXbIgELZTJ18Nw';
+var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/light-v8',
+  center: [-122.6765, 45.5231],
+  zoom: 13
+});
+
+function GetRoutes(callback){
+    $.ajax({
+        url: 'https://developer.trimet.org/ws/v2/vehicles?appID=855A219E7990A6DCB57450C75',
+        success: function(data){
+            var formattedData = FormatData(data.resultSet.vehicle);
+            callback(formattedData);
+        }
+    });
+}
+
+function FormatData(data){
+    
+    var pointData = {
+      "type": "FeatureCollection",
+      "features": []
+    };
+    for (var i = data.length - 1; i >= 0; i--) {
+        var feature = data[i];
+        var point = {
+            "geometry":{
+                "type":"Point",
+                "coordinates":[feature.longitude, feature.latitude]
+            },
+            "properties":{
+                "transitType":feature.type == 'rail' ? 0 : 1
+            }
+        };
+        pointData.features.push(point);
+    };
+
+    return pointData
+}
+
+map.on('load', function () {
+    // Add a source and layer displaying a point which will be animated in a circle.
+    GetRoutes(function(data){
+        console.log(data);
+        map.addSource('point', {
+            "type": "geojson",
+            "data": data
+        });
+
+        // map.addLayer({
+        //     "id": "bus",
+        //     "source": "point",
+        //     "type": "symbol",
+        //     "layout": {
+        //         "icon-image": 'bus-15',
+        //         "icon-allow-overlap":true
+        //     },
+        //     "paint": {
+        //         "icon-color": '#c091e6'
+        //     },
+        //     "filter": ['==','transitType',1]
+        // });
+        // map.addLayer({
+        //     "id": "rail",
+        //     "source": "point",
+        //     "type": "symbol",
+        //     "layout": {
+        //         "icon-image": 'rail-light-15',
+        //         "icon-allow-overlap":true
+        //     },
+        //     "paint": {
+        //         "icon-color": '#fa946e'
+        //     },
+        //     "filter": ['==','transitType',0]
+        // });
+
+        map.addLayer({
+            "id": "point",
+            "source": "point",
+            "type": "circle",
+            "paint": {
+                "circle-radius": 5,
+                "circle-color": {
+                    property: 'transitType',
+                    stops: [
+                        [0,'#fa946e'],
+                        [1,'#c091e6']
+                    ]
+                }
+            }
+        });
+
+        function recurseAnimation() {
+            GetRoutes(function(newData){
+                map.getSource('point').setData(newData);
+                setTimeout(recurseAnimation, 3000);
+            });
+        }
+
+        // Start the animation.
+        recurseAnimation();
+    });
+
+});
+</script>
+
+</body>
+</html>
