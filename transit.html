@@ -10,35 +10,13 @@
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
-        #colorLegend{
-            width: 42px;
-            position: absolute;
-            left: 10px;
-            bottom: 10px;
-            background-color: rgba(255,255,255,.5);
-            z-index: 2;
-            font-family: 'Open Sans', sans-serif;
-            font-size: 1em;
-        }
-        .legendItem{
-            margin-bottom: 5px;
-            margin-left: 5px;
-            margin-top: 5px;
-        }
-        .colorbox{
-            width:30px;
-            height:20px;
-        }
     </style>
 </head>
 <body>
-    <div id="colorLegend">
-      <div class="legendItem"><div class="colorbox" style="background-color: #fa946e"></div>Rail</div>
-      <div class="legendItem"><div class="colorbox" style="background-color: #c091e6"></div>Bus</div>
-    </div>
-    <div id='map'></div>
+<div id='map'></div>
 <!-- <script src='routes_s.js'></script> -->
 <script>
+var layerIDs = [];
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9udHltb29zZTIxIiwiYSI6IjZGdDZJZlEifQ.HmDYRXH_GXbIgELZTJ18Nw';
 var map = new mapboxgl.Map({
   container: 'map',
@@ -75,9 +53,16 @@ function FormatData(data){
                 "signMessageLong": feature.signMessageLong,
                 "delay": Math.abs(feature.delay),
                 "inCongestion": feature.inCongestion,
-                "loadPercentage": feature.loadPercentage
+                "loadPercentage": feature.loadPercentage,
+                "routeNumber": feature.routeNumber,
+                "bearing": feature.bearing
             }
         };
+        var message = feature.signMessageLong;
+        if(message != null && message.includes("MAX")){
+            var color = feature.signMessage.split(' ')[0];
+            point.properties.lineColor = color.toLowerCase();
+        }
         pointData.features.push(point);
     };
 
@@ -107,6 +92,55 @@ map.on('load', function () {
                 "type": "geojson",
                 "data": data
             });
+            // geojson.features.forEach(function(feature){
+            //     var layerID = String(feature.properties.rte);
+            //     if(!map.getLayer(layerID)){
+            //         if(feature.properties.type == 'BUS'){
+            //             map.addLayer({
+            //                 "id": layerID,
+            //                 "source": "lines",
+            //                 "type": "line",
+            //                 "layout": {
+            //                     "line-join":"round",
+            //                     "line-cap":"round"
+            //                 },
+            //                 "paint": {
+            //                     "line-color": '#c091e6',
+            //                     "line-width":1
+            //                 },
+            //                 "filter": ['==','type','BUS']
+            //             });
+            //             layerIDs.push(layerID);
+            //         }
+            //         if(feature.properties.type == 'MAX'){
+            //             map.addLayer({
+            //                 "id": layerID,
+            //                 "source": "lines",
+            //                 "type": "line",
+            //                 "layout": {
+            //                     "line-join":"round",
+            //                     "line-cap":"round"
+            //                 },
+            //                 "paint": {
+            //                     "line-width":2,
+            //                     "line-color": {
+            //                         'property':'rte_desc',
+            //                         'type':'categorical',
+            //                         'stops':[
+            //                             ['MAX Blue Line','#00F'],
+            //                             ['MAX Green Line','#0F0'],
+            //                             ['MAX Orange Line','#FF8000'],
+            //                             ['MAX Red Line','#F00'],
+            //                             ['MAX Yellow Line','#FF0']]
+            //                     }
+            //                 },
+            //                 "filter": ['==','type','MAX']
+            //             });
+            //             layerIDs.push(layerID);
+            //         }
+            //     }
+            // });
+
             map.addLayer({
                 "id": "routes_bus",
                 "source": "lines",
@@ -130,18 +164,49 @@ map.on('load', function () {
                     "line-cap":"round"
                 },
                 "paint": {
-                    "line-color": '#fa946e',
-                    "line-width":1
+                    "line-width":2,
+                    "line-color": {
+                        'property':'rte_desc',
+                        'type':'categorical',
+                        'stops':[
+                            ['MAX Blue Line','#00F'],
+                            ['MAX Green Line','#0F0'],
+                            ['MAX Orange Line','#FF8000'],
+                            ['MAX Red Line','#F00'],
+                            ['MAX Yellow Line','#FF0']]
+                    }
                 },
-                "filter": ['any',['==','type','MAX'],['==','type','SC']]
+                "filter": ['==','type','MAX']
             });
+            // map.addLayer({
+            //     "id": "bus",
+            //     "source": "point",
+            //     "type": "circle",
+            //     "paint": {
+            //         "circle-radius": 5,
+            //         "circle-color": '#c091e6'
+            //     },
+            //     "filter": ['==','transitType',1]
+            // });
             map.addLayer({
                 "id": "bus",
                 "source": "point",
-                "type": "circle",
-                "paint": {
-                    "circle-radius": 5,
-                    "circle-color": '#c091e6'
+                "type": "symbol",
+                'layout':{
+                    'icon-image':'triangle-15',
+                    'icon-allow-overlap': true,
+                    'icon-rotate': {
+                        'property':'bearing',
+                        'stops':[
+                            [0,0],
+                            [360,360]]
+                    },
+                    "text-field": '{routeNumber}',
+                    "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+                    "text-size": 8,
+                    "text-transform": "uppercase",
+                    "text-letter-spacing": 0.05,
+                    "text-offset": [0, 1.5]
                 },
                 "filter": ['==','transitType',1]
             });
@@ -151,10 +216,38 @@ map.on('load', function () {
                 "type": "circle",
                 "paint": {
                     "circle-radius": 5,
-                    "circle-color": '#fa946e'
+                    "circle-color": {
+                        'property': 'lineColor',
+                        'type':'categorical',
+                        'stops': [
+                            ['blue','#00F'],
+                            ['red','#F00'],
+                            ['green','#0F0'],
+                            ['yellow','#FF0'],
+                            ['orange','#FF8000']]
+                    }
                 },
                 "filter": ['==','transitType',0]
             });
+            // map.addLayer({
+            //     "id": "rail_arrow",
+            //     "source": "point",
+            //     "type": "symbol",
+            //     'layout':{
+            //         'icon-image':'triangle-15',
+            //         'icon-allow-overlap': true,
+            //         'icon-rotate': {
+            //             'property':'bearing',
+            //             'stops':[
+            //                 [0,0],
+            //                 [360,360]]
+            //         },
+            //     },
+            //     'paint':{
+            //         'icon-opacity':0.5
+            //     },
+            //     "filter": ['==','transitType',0]
+            // });
 
             function animate() {
                 GetRoutes(function(newData){
