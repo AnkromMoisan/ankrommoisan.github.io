@@ -37,6 +37,7 @@
       <div class="legendItem"><div class="colorbox" style="background-color: #c091e6"></div>Bus</div>
     </div>
     <div id='map'></div>
+<!-- <script src='routes_s.js'></script> -->
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoibW9udHltb29zZTIxIiwiYSI6IjZGdDZJZlEifQ.HmDYRXH_GXbIgELZTJ18Nw';
 var map = new mapboxgl.Map({
@@ -70,7 +71,9 @@ function FormatData(data){
                 "coordinates":[feature.longitude, feature.latitude]
             },
             "properties":{
-                "transitType":feature.type == 'rail' ? 0 : 1
+                "transitType":feature.type == 'rail' ? 0 : 1,
+                "signMessageLong": feature.signMessageLong,
+                "delay": Math.abs(feature.delay)
             }
         };
         pointData.features.push(point);
@@ -80,68 +83,114 @@ function FormatData(data){
 }
 
 map.on('load', function () {
-    // Add a source and layer displaying a point which will be animated in a circle.
-    GetRoutes(function(data){
-        console.log(data);
-        map.addSource('point', {
-            "type": "geojson",
-            "data": data
-        });
-
-        // map.addLayer({
-        //     "id": "bus",
-        //     "source": "point",
-        //     "type": "symbol",
-        //     "layout": {
-        //         "icon-image": 'bus-15',
-        //         "icon-allow-overlap":true
-        //     },
-        //     "paint": {
-        //         "icon-color": '#c091e6'
-        //     },
-        //     "filter": ['==','transitType',1]
-        // });
-        // map.addLayer({
-        //     "id": "rail",
-        //     "source": "point",
-        //     "type": "symbol",
-        //     "layout": {
-        //         "icon-image": 'rail-light-15',
-        //         "icon-allow-overlap":true
-        //     },
-        //     "paint": {
-        //         "icon-color": '#fa946e'
-        //     },
-        //     "filter": ['==','transitType',0]
-        // });
-
-        map.addLayer({
-            "id": "point",
-            "source": "point",
-            "type": "circle",
-            "paint": {
-                "circle-radius": 5,
-                "circle-color": {
-                    property: 'transitType',
-                    stops: [
-                        [0,'#fa946e'],
-                        [1,'#c091e6']
-                    ]
-                }
-            }
-        });
-
-        function recurseAnimation() {
-            GetRoutes(function(newData){
-                map.getSource('point').setData(newData);
-                setTimeout(recurseAnimation, 3000);
-            });
+    // AJAX Load GeoJSON from GitHub
+    var url = 'https://raw.githubusercontent.com/McCulloughRT/GISData/master/routes_s.json';
+    $.ajax({
+        dataType: 'json',
+        url: url,
+        async: true,
+        success: function(geojson) {
+            OnDataLoad(geojson);
         }
-
-        // Start the animation.
-        recurseAnimation();
     });
+    function OnDataLoad(geojson) {
+        // Add a source and layer displaying a point which will be animated in a circle.
+        GetRoutes(function(data){
+            console.log(data);
+            map.addSource('lines',{
+                "type": "geojson",
+                "data": geojson
+            });
+            map.addSource('point', {
+                "type": "geojson",
+                "data": data
+            });
+            map.addLayer({
+                "id": "routes_bus",
+                "source": "lines",
+                "type": "line",
+                "layout": {
+                    "line-join":"round",
+                    "line-cap":"round"
+                },
+                "paint": {
+                    "line-color": '#c091e6',
+                    "line-width":1
+                },
+                "filter": ['==','type','BUS']
+            });
+            map.addLayer({
+                "id": "routes_rail",
+                "source": "lines",
+                "type": "line",
+                "layout": {
+                    "line-join":"round",
+                    "line-cap":"round"
+                },
+                "paint": {
+                    "line-color": '#fa946e',
+                    "line-width":1
+                },
+                "filter": ['any',['==','type','MAX'],['==','type','SC']]
+            });
+            map.addLayer({
+                "id": "bus",
+                "source": "point",
+                "type": "circle",
+                "paint": {
+                    "circle-radius": 5,
+                    "circle-color": '#c091e6'
+                },
+                "filter": ['==','transitType',1]
+            });
+            map.addLayer({
+                "id": "rail",
+                "source": "point",
+                "type": "circle",
+                "paint": {
+                    "circle-radius": 5,
+                    "circle-color": '#fa946e'
+                },
+                "filter": ['==','transitType',0]
+            });
 
+            function animate() {
+                GetRoutes(function(newData){
+                    map.getSource('point').setData(newData);
+                    setTimeout(animate, 3000);
+                });
+            }
+
+            // Start the animation.
+            animate();
+        });
+    }
+
+});
+
+map.on('click', function (e) {
+    var features = map.queryRenderedFeatures(e.point, { layers: ['bus','rail'] });
+
+    if (!features.length) {
+        return;
+    }
+
+    var feature = features[0];
+    var html = '</br>Seconds off schedule: ' + feature.properties.delay;
+
+    // Populate the popup and set its coordinates
+    // based on the feature found.
+    var popup = new mapboxgl.Popup()
+        .setLngLat(feature.geometry.coordinates)
+        .setHTML(feature.properties.signMessageLong + html)
+        .addTo(map);
+});
+
+// Use the same approach as above to indicate that the symbols are clickable
+// by changing the cursor style to 'pointer'.
+map.on('mousemove', function (e) {
+    var features = map.queryRenderedFeatures(e.point, { layers: ['bus','rail'] });
+    map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
 });
 </script>
 
