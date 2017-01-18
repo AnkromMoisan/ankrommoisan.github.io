@@ -92,55 +92,6 @@ map.on('load', function () {
                 "type": "geojson",
                 "data": data
             });
-            // geojson.features.forEach(function(feature){
-            //     var layerID = String(feature.properties.rte);
-            //     if(!map.getLayer(layerID)){
-            //         if(feature.properties.type == 'BUS'){
-            //             map.addLayer({
-            //                 "id": layerID,
-            //                 "source": "lines",
-            //                 "type": "line",
-            //                 "layout": {
-            //                     "line-join":"round",
-            //                     "line-cap":"round"
-            //                 },
-            //                 "paint": {
-            //                     "line-color": '#c091e6',
-            //                     "line-width":1
-            //                 },
-            //                 "filter": ['==','type','BUS']
-            //             });
-            //             layerIDs.push(layerID);
-            //         }
-            //         if(feature.properties.type == 'MAX'){
-            //             map.addLayer({
-            //                 "id": layerID,
-            //                 "source": "lines",
-            //                 "type": "line",
-            //                 "layout": {
-            //                     "line-join":"round",
-            //                     "line-cap":"round"
-            //                 },
-            //                 "paint": {
-            //                     "line-width":2,
-            //                     "line-color": {
-            //                         'property':'rte_desc',
-            //                         'type':'categorical',
-            //                         'stops':[
-            //                             ['MAX Blue Line','#00F'],
-            //                             ['MAX Green Line','#0F0'],
-            //                             ['MAX Orange Line','#FF8000'],
-            //                             ['MAX Red Line','#F00'],
-            //                             ['MAX Yellow Line','#FF0']]
-            //                     }
-            //                 },
-            //                 "filter": ['==','type','MAX']
-            //             });
-            //             layerIDs.push(layerID);
-            //         }
-            //     }
-            // });
-
             map.addLayer({
                 "id": "routes_bus",
                 "source": "lines",
@@ -178,16 +129,6 @@ map.on('load', function () {
                 },
                 "filter": ['==','type','MAX']
             });
-            // map.addLayer({
-            //     "id": "bus",
-            //     "source": "point",
-            //     "type": "circle",
-            //     "paint": {
-            //         "circle-radius": 5,
-            //         "circle-color": '#c091e6'
-            //     },
-            //     "filter": ['==','transitType',1]
-            // });
             map.addLayer({
                 "id": "bus",
                 "source": "point",
@@ -229,26 +170,6 @@ map.on('load', function () {
                 },
                 "filter": ['==','transitType',0]
             });
-            // map.addLayer({
-            //     "id": "rail_arrow",
-            //     "source": "point",
-            //     "type": "symbol",
-            //     'layout':{
-            //         'icon-image':'triangle-15',
-            //         'icon-allow-overlap': true,
-            //         'icon-rotate': {
-            //             'property':'bearing',
-            //             'stops':[
-            //                 [0,0],
-            //                 [360,360]]
-            //         },
-            //     },
-            //     'paint':{
-            //         'icon-opacity':0.5
-            //     },
-            //     "filter": ['==','transitType',0]
-            // });
-
             function animate() {
                 GetRoutes(function(newData){
                     map.getSource('point').setData(newData);
