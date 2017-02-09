@@ -49,6 +49,7 @@ function FormatData(data){
                 "coordinates":[feature.longitude, feature.latitude]
             },
             "properties":{
+                "id": feature.vehicleID,
                 "transitType":feature.type == 'rail' ? 0 : 1,
                 "signMessageLong": feature.signMessageLong,
                 "delay": Math.abs(feature.delay),
@@ -197,6 +198,7 @@ map.on('click', function (e) {
         html += ('</br>In Congestion: ' + (feature.properties.inCongestion ? 'Yes' : 'No'));
         html += ('</br>Currently Full: ' + (feature.properties.loadPercentage > 50 ? 'Yes' : 'No'));
     }
+    html += ('</br>Id: ' + feature.properties.id);
 
     // Populate the popup and set its coordinates
     // based on the feature found.
