@@ -25,19 +25,13 @@ var map = new mapboxgl.Map({
 
 map.on('load', function () {
 
-
-  map.addSource('rops', {
-    type: 'vector',
-    tiles: [
-      'http://projectmaps.pdx.amaa.com:9000/rent_own_points.mbtiles/{z}/{x}/{y}.pbf'
-    ],
-    maxzoom: 14
-  });
-
   map.addLayer({
     "id": "own-points",
     "type": "circle",
-    "source": "rops",
+    "source": {
+        "type": 'vector',
+        "url": 'mapbox://ryantm.58uh2o78'
+    },
     "source-layer": "ro_points",
     "filter": [
         "all",
