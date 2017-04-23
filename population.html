@@ -70,7 +70,10 @@ map.on('load', function () {
   map.addLayer({
     "id": "rent-points",
     "type": "circle",
-    "source": "rops",
+    "source": {
+        "type": 'vector',
+        "url": 'mapbox://ryantm.58uh2o78'
+    },
     "source-layer": "ro_points",
     "filter": [
         "all",
