@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8' />
+	<title>Portland Development</title>
+    <script>L_PREFER_CANVAS=true</script>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v1.4.0/turf.min.js'></script>
+	<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.js'></script>
+    <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.3/leaflet-heat.js'></script>
+    <script src="./javascripts/d3.js" charset="utf-8"></script>
+	<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.css' rel='stylesheet' />
+	<link href='./stylesheets/style.css' rel='stylesheet' />
+</head>
+<body>
+    <div id='map'></div>
+	<div class='pad1 col2 dark' id='month'></div>
+    <div id='progress' class='pin-bottom col12'></div>
+    <div id='slide-back' class='pin-bottom fill-navy'>
+        <div id='totals' class='pin-bottom'></div>
+    </div>
+    <script src='./javascripts/site.js'></script>
+</body>
+</html>

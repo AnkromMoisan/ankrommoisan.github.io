@@ -1,0 +1,78 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  color:#CCC;
+}
+
+h4 {
+  color:#CCC;
+  margin-left: 10px;
+}
+
+/*#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}*/
+
+.LegendContainer {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2;
+  width: 300px;
+  height: 40px;
+  background: rgba(80,80,80,.75);
+  transition: width 2s, height 2s;
+  border-radius: 7px;
+}
+
+.descriptionPanel {
+  position: absolute;
+  bottom: 65px;
+  left: 20px;
+  z-index: 2;
+  width: 300px;
+  height: 40px;
+  background: rgba(80,80,80,.75);
+  transition: width 2s, height 2s;
+  overflow: hidden;
+  border-radius: 7px;
+}
+
+.LegendContainer:active {
+  width: 240px;
+  height: 250px;
+}
+
+.legendItem {
+  float: left;
+  width: 50%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.colorBox {
+  width: 20px;
+  height: 20px;
+  float: left;
+  border-radius: 10px;
+  margin-left: 10px;
+}
+
+.layerDescription {
+  color: white;
+  float: left;
+  margin-left: 10px;
+}
+
+.chevron {
+  position: relative;
+  margin-left: 45%;
+  font-size: x-large;
+  color: white;
+}
