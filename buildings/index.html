@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title>Portland Buildings</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.35.1/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.35.1/mapbox-gl.css' rel='stylesheet' />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+  <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+    #ui {
+      z-index: 2;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      border-radius: 7px;
+      width: 230px;
+      background: white;
+      padding: 15px;
+    }
+    .legendBox{
+      z-index: 2;
+      background: rgba(200,200,200,.55);
+      height:55px;
+      width: 100%;
+      text-align: center;
+      padding: 15px;
+      border-radius: 5px;
+      font-size: x-small;
+      margin-top: 30px;
+    }
+    .legendGradient{
+      height: 10px;
+      width: 100%;
+      background: linear-gradient(to right, #f7fbff, #084594);
+      border-radius: 10px;
+      margin-bottom: 5px;
+    }
+    .btn-group-vertical{
+      width:100%;
+    }
+    #uiHeader{
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    #reminder{
+      font-size: x-small;
+      margin-top: 10px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+<div id='ui'>
+  <div id='uiHeader'>Select a metric to view:</div>
+  <div class="btn-group-vertical" role="group" aria-label="...">
+    <button id='age' type="button" class="btn btn-default active">Building Age</button>
+    <button id='sqft' type="button" class="btn btn-default">Building Sqft</button>
+    <button id='units' type="button" class="btn btn-default">Housing Units</button>
+    <button id='use' type="button" class="btn btn-default">Primary Use</button>
+  </div>
+
+  <div class='legendBox container'>
+    <div class='legendGradient'></div>
+    <div class='row'>
+      <div id='leftTxt' class='col-md-6' style='text: align-left;'>Low</div>
+      <div id='rightTxt' class='col-md-6' style='text: align-right;'>High</div>
+    </div>
+  </div>
+  <div id='reminder'>Click on a building for more information!</div>
+</div>
+
+<div id='map'></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbnRtIiwiYSI6ImNpaDgycjExZzB0NDR1MWtpbWdkeDhxbmIifQ.AamjhGik8yPxK5V71kzHdw';
+var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/ryantm/cj1r7r2hf00042rpfjiezw150',
+  center: [-122.66661759147235, 45.51886025215052],
+  zoom: 14.26,
+  pitch: 44,
+  bearing: 0
+});
+
+var eightBinBlue = ["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#084594"]
+var maxAge = 2015;
+var minAge = 1900;
+var minSqft = 500;
+var maxSqft = 100000;
+var minUnits = 10;
+var maxUnits = 200;
+
+var categoryStops =
+[['Industrial','#a6cee3'],
+['Parking','#1f78b4'],
+['Institutional Religious','#b2df8a'],
+['Multi Family Residential','#33a02c'],
+['Institutional','#fb9a99'],
+['Commercial Retail','#e31a1c'],
+['Commercial Restaurant','#e31a1c'],
+['Commercial Office','#e31a1c'],
+['Commercial Grocery','#e31a1c'],
+['Commercial Hotel','#e31a1c'],
+['Commercial General','#e31a1c'],
+['Vacant','#fdbf6f'],
+['Single Family Residential','#ff7f00'],
+['Residential','#cab2d6']];
+
+var agePaint = {
+  'property': 'YEAR_BUILT',
+  "type": "interval",
+  "stops": binItUp(eightBinBlue.reverse(), minAge, maxAge)
+};
+var sqftPaint = {
+  'property': 'BLDG_SQFT',
+  "type": "interval",
+  "stops": binItUp(eightBinBlue.reverse(), minSqft, maxSqft)
+};
+var unitsPaint = {
+  'property': 'UNITS_RES',
+  "type": "interval",
+  "stops": binItUp(eightBinBlue, minUnits, maxUnits)
+};
+var usePaint = {
+  'property': 'BLDG_USE',
+  "type": "categorical",
+  "stops": categoryStops
+};
+console.log(agePaint);
+console.log(sqftPaint);
+console.log(unitsPaint);
+
+function binItUp(bins, min, max){
+  var range = max - min;
+  var binSize = parseInt(range / bins.length);
+  stops = [];
+  var runningTotal = min;
+  bins.forEach(function(bin) {
+    stops.push([runningTotal,bin]);
+    runningTotal += binSize;
+  });
+  return stops;
+}
+
+map.on('load', function() {
+
+  map.addLayer({
+    'id': 'room-extrusion',
+    'type': 'fill-extrusion',
+    'source': {
+      'type': 'vector',
+      'url': 'mapbox://ryantm.5anqi1fg'
+    },
+    'source-layer': 'bldgHeightMgeojson',
+    'paint': {
+      'fill-extrusion-color': agePaint,
+      'fill-extrusion-height': {
+        'property': 'AVG_HEIGHT',
+        'type': 'identity'
+    },
+    'fill-extrusion-opacity': 1
+    }
+  });
+});
+
+map.on('click', 'room-extrusion', function (e) {
+  var breakHtml = '<br />';
+  var height = 'Height: ' + e.features[0].properties.AVG_HEIGHT + ' m' + breakHtml;
+  var sqft = 'Area: ' + e.features[0].properties.BLDG_SQFT + ' sf' + breakHtml;
+  var use = 'Use: ' + e.features[0].properties.BLDG_USE + breakHtml;
+  var type = 'Type: ' + e.features[0].properties.BLDG_TYPE + breakHtml;
+  var stories = 'Floors: ' + e.features[0].properties.NUM_STORY + breakHtml;
+  var units = 'Units: ' + e.features[0].properties.UNITS_RES + breakHtml;
+  var year = 'Year: ' + e.features[0].properties.YEAR_BUILT + breakHtml;
+
+  var html = height+sqft+use+type+stories+units+year;
+
+  new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML(html)
+    .addTo(map);
+});
+
+$(document).on('click', '.btn-group-vertical button', function() {
+    $(".btn-group-vertical button").removeClass("active");
+    $(this).addClass("active");
+    switch($(this).attr('id')){
+      case 'age':
+        map.setPaintProperty('room-extrusion', 'fill-extrusion-color', agePaint);
+        $('#leftTxt').html('< 1900');
+        $('#rightTxt').html('2015');
+        $('.legendBox').show();
+        break;
+      case 'sqft':
+        map.setPaintProperty('room-extrusion', 'fill-extrusion-color', sqftPaint);
+        $('#leftTxt').html('< 500 sf');
+        $('#rightTxt').html('> 100,000 sf');
+        $('.legendBox').show();
+        break;
+      case 'units':
+        map.setPaintProperty('room-extrusion', 'fill-extrusion-color', unitsPaint);
+        $('#leftTxt').html('1 units');
+        $('#rightTxt').html('> 200 units');
+        $('.legendBox').show();
+        break;
+      case 'use':
+        map.setPaintProperty('room-extrusion', 'fill-extrusion-color', usePaint);
+        $('#leftTxt').html('');
+        $('#rightTxt').html('');
+        $('.legendBox').hide();
+    }
+});
+
+
+</script>
+
+</body>
+</html>
