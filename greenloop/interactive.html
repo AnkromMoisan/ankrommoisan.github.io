@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
+    <style>
+        body { margin:0; padding:0; }
+        #map { position: absolute; bottom:0; top: 0; width: 100%; }
+        #overlay{ position: absolute; bottom:0; top: 0; width: 100%; background:rgba(255,255,255,.25); z-index: 2; }
+        #infobox{
+          position: absolute;
+          top:30px;
+          right:30px;
+          height:400px;
+          width:350px;
+          background:white;
+          border-radius: 10px;
+          z-index: 3;
+          box-shadow: 1px 1px 5px rgba(100,100,100,.5);
+        }
+        .title{
+          font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
+          font-size: 35px;
+          font-weight: 300;
+          line-height: 1;
+          letter-spacing: -1px;
+          -webkit-font-smoothing: antialiased;
+          padding-left: 20px;
+        }
+        .body{
+          font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
+          font-size: 17px;
+          font-weight: 300;
+          line-height: 1;
+          letter-spacing: .1px;
+          -webkit-font-smoothing: antialiased;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        #credit{
+          font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+  <div id='infobox'>
+    <h2 class='title'>Living on the Green</h2>
+    <h3 class='body'>
+      This shows Portland's planned Green Loop winding through the buildings of downtown and the inner East side in bright green, buildings including residential units are shown shaded, and transit routes allowing high access are shown in a darker green.<br /><br />
+      The Green Loop, a bold new concept of the Central City 2035 plan, envisions a linear park that connects people to places within and beyond Portland's downtown neighborhoods and to the Willamette River. <br /><br />
+      <div id='credit'>This visualization was made as part of <a href='https://www.designweekportland.com/'>Design Week Portland</a>, and MapBox's workshop on urban planning with <a href='https://www.mapbox.com/mapbox-studio/'>MapBox Studio</a>.</div>
+    </h3>
+  </div>
+  <!-- <div id='overlay'></div> -->
+  <div id='map'></div>
+<script>
+var rotateState = -180;
+var dps = 3;
+mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbnRtIiwiYSI6ImNpaDgycjExZzB0NDR1MWtpbWdkeDhxbmIifQ.AamjhGik8yPxK5V71kzHdw';
+var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/ryantm/cj1vk2h0j000h2snycjkzf6x5', //stylesheet location
+    center: [-122.67317420458659, 45.52328041613052], // starting position
+    zoom: 15.228,
+    bearing: -17.5,
+    pitch: 57, // starting zoom
+    interactive: true,
+    minZoom: 14
+});
+
+map.on('load', function(){
+  map.addLayer({
+    'id': 'room-extrusion',
+    'type': 'fill-extrusion',
+    'source': {
+      'type': 'vector',
+      'url': 'mapbox://ryantm.5anqi1fg'
+    },
+    'filter': ['!=','BLDG_USE','Multi Family Residential'],
+    'source-layer': 'bldgHeightMgeojson',
+    'paint': {
+      'fill-extrusion-color': '#ffffff',
+      'fill-extrusion-height': {
+        'property': 'AVG_HEIGHT',
+        'type': 'identity'
+    },
+    'fill-extrusion-opacity': .75
+    }
+  });
+  map.addLayer({
+    'id':'housing-extrusion',
+    'type': 'fill-extrusion',
+    'source': {
+      'type': 'vector',
+      'url': 'mapbox://ryantm.5anqi1fg'
+    },
+    'filter': ['==','BLDG_USE','Multi Family Residential'],
+    'source-layer': 'bldgHeightMgeojson',
+    'paint': {
+      'fill-extrusion-color': '#889988',
+      'fill-extrusion-height': {
+        'property': 'AVG_HEIGHT',
+        'type': 'identity'
+      },
+      'fill-extrusion-opacity':.9
+    }
+  });
+});
+</script>
+
+</body>
+</html>
