@@ -80,24 +80,6 @@ var map = new mapboxgl.Map({
 
 map.on('load', function(){
   map.addLayer({
-    'id': 'room-extrusion',
-    'type': 'fill-extrusion',
-    'source': {
-      'type': 'vector',
-      'url': 'mapbox://ryantm.5anqi1fg'
-    },
-    'filter': ['!=','BLDG_USE','Multi Family Residential'],
-    'source-layer': 'bldgHeightMgeojson',
-    'paint': {
-      'fill-extrusion-color': '#ffffff',
-      'fill-extrusion-height': {
-        'property': 'AVG_HEIGHT',
-        'type': 'identity'
-    },
-    'fill-extrusion-opacity': .75
-    }
-  });
-  map.addLayer({
     'id':'housing-extrusion',
     'type': 'fill-extrusion',
     'source': {
@@ -113,6 +95,24 @@ map.on('load', function(){
         'type': 'identity'
       },
       'fill-extrusion-opacity':.9
+    }
+  });
+  map.addLayer({
+    'id': 'room-extrusion',
+    'type': 'fill-extrusion',
+    'source': {
+      'type': 'vector',
+      'url': 'mapbox://ryantm.5anqi1fg'
+    },
+    'filter': ['!=','BLDG_USE','Multi Family Residential'],
+    'source-layer': 'bldgHeightMgeojson',
+    'paint': {
+      'fill-extrusion-color': '#ffffff',
+      'fill-extrusion-height': {
+        'property': 'AVG_HEIGHT',
+        'type': 'identity'
+    },
+    'fill-extrusion-opacity': .75
     }
   });
 
