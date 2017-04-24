@@ -21,7 +21,7 @@
           position: absolute;
           top:30px;
           right:30px;
-          height:500px;
+          height:400px;
           width:350px;
           background:white;
           border-radius: 10px;
@@ -54,11 +54,10 @@
 </head>
 <body>
   <div id='infobox'>
-    <h2 class='title'>The Green Loop</h2>
+    <h2 class='title'>Living on the Green</h2>
     <h3 class='body'>
-      This shows Portland's planned "Green Loop" winding through the buildings of downtown and the inner East side in bright green. Transit routes are shown in a darker green.<br /><br />
+      This shows Portland's planned Green Loop winding through the buildings of downtown and the inner East side in bright green, buildings including residential units are shown shaded, and transit routes allowing high access are shown in a darker green.<br /><br />
       The Green Loop, a bold new concept of the Central City 2035 plan, envisions a linear park that connects people to places within and beyond Portland's downtown neighborhoods and to the Willamette River. <br /><br />
-      In the growing Central City, which expects to hold 30 percent of the city's future population in the next 25 years, <b>the Green Loop is for the people.</b> It's a 21st century open space that will encourage more Portlanders to stay in the Central City, longer.<br /><br />
       <div id='credit'>This visualization was made as part of <a href='https://www.designweekportland.com/'>Design Week Portland</a>, and MapBox's workshop on urban planning with <a href='https://www.mapbox.com/mapbox-studio/'>MapBox Studio</a>.</div>
     </h3>
   </div>
@@ -86,6 +85,7 @@ map.on('load', function(){
       'type': 'vector',
       'url': 'mapbox://ryantm.5anqi1fg'
     },
+    'filter': ['!=','BLDG_USE','Multi Family Residential'],
     'source-layer': 'bldgHeightMgeojson',
     'paint': {
       'fill-extrusion-color': '#ffffff',
@@ -94,6 +94,24 @@ map.on('load', function(){
         'type': 'identity'
     },
     'fill-extrusion-opacity': .75
+    }
+  });
+  map.addLayer({
+    'id':'housing-extrusion',
+    'type': 'fill-extrusion',
+    'source': {
+      'type': 'vector',
+      'url': 'mapbox://ryantm.5anqi1fg'
+    },
+    'filter': ['==','BLDG_USE','Multi Family Residential'],
+    'source-layer': 'bldgHeightMgeojson',
+    'paint': {
+      'fill-extrusion-color': '#889988',
+      'fill-extrusion-height': {
+        'property': 'AVG_HEIGHT',
+        'type': 'identity'
+      },
+      'fill-extrusion-opacity':.9
     }
   });
 
