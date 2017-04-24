@@ -12,13 +12,56 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
     <style>
         body { margin:0; padding:0; }
         #map { position: absolute; bottom:0; top: 0; width: 100%; }
         #overlay{ position: absolute; bottom:0; top: 0; width: 100%; background:rgba(255,255,255,.25); z-index: 2; }
+        #infobox{
+          position: absolute;
+          top:30px;
+          right:30px;
+          height:500px;
+          width:350px;
+          background:white;
+          border-radius: 10px;
+          z-index: 3;
+          box-shadow: 1px 1px 5px rgba(100,100,100,.5);
+        }
+        .title{
+          font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
+          font-size: 35px;
+          font-weight: 300;
+          line-height: 1;
+          letter-spacing: -1px;
+          -webkit-font-smoothing: antialiased;
+          padding-left: 20px;
+        }
+        .body{
+          font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
+          font-size: 17px;
+          font-weight: 300;
+          line-height: 1;
+          letter-spacing: .1px;
+          -webkit-font-smoothing: antialiased;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        #credit{
+          font-size: 15px;
+        }
     </style>
 </head>
 <body>
+  <div id='infobox'>
+    <h2 class='title'>The Green Loop</h2>
+    <h3 class='body'>
+      This shows Portland's planned "Green Loop" winding through the buildings of downtown and the inner East side in bright green. Transit routes are shown in a darker green.<br /><br />
+      The Green Loop, a bold new concept of the Central City 2035 plan, envisions a linear park that connects people to places within and beyond Portland's downtown neighborhoods and to the Willamette River. <br /><br />
+      In the growing Central City, which expects to hold 30 percent of the city's future population in the next 25 years, <b>the Green Loop is for the people.</b> It's a 21st century open space that will encourage more Portlanders to stay in the Central City, longer.<br /><br />
+      <div id='credit'>This visualization was made as part of <a href='https://www.designweekportland.com/'>Design Week Portland</a>, and MapBox's workshop on urban planning with <a href='https://www.mapbox.com/mapbox-studio/'>MapBox Studio</a>.</div>
+    </h3>
+  </div>
   <div id='overlay'></div>
   <div id='map'></div>
 <script>
