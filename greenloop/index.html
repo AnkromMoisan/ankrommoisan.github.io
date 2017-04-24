@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <style>
+        body { margin:0; padding:0; }
+        #map { position: absolute; bottom:0; top: 0; width: 100%; }
+        #overlay{ position: absolute; bottom:0; top: 0; width: 100%; background:rgba(255,255,255,.25); z-index: 2; }
+    </style>
+</head>
+<body>
+  <div id='overlay'></div>
+  <div id='map'></div>
+<script>
+var rotateState = -180;
+var dps = 3;
+mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbnRtIiwiYSI6ImNpaDgycjExZzB0NDR1MWtpbWdkeDhxbmIifQ.AamjhGik8yPxK5V71kzHdw';
+var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/ryantm/cj1vk2h0j000h2snycjkzf6x5', //stylesheet location
+    center: [-122.67317420458659, 45.52328041613052], // starting position
+    zoom: 15.228,
+    bearing: -17.5,
+    pitch: 57, // starting zoom
+    interactive: false
+});
+
+map.on('load', function(){
+  map.addLayer({
+    'id': 'room-extrusion',
+    'type': 'fill-extrusion',
+    'source': {
+      'type': 'vector',
+      'url': 'mapbox://ryantm.5anqi1fg'
+    },
+    'source-layer': 'bldgHeightMgeojson',
+    'paint': {
+      'fill-extrusion-color': '#ffffff',
+      'fill-extrusion-height': {
+        'property': 'AVG_HEIGHT',
+        'type': 'identity'
+    },
+    'fill-extrusion-opacity': .75
+    }
+  });
+
+  map.easeTo({
+    bearing: rotateState,
+    duration: (162.5 / dps) * 1000,
+    easing: function(t){return t;}
+  });
+});
+
+map.on('moveend', function(){
+  console.log('moveend');
+  var dps = 4.5;
+  var degrees = 0;
+  if(rotateState == -180){
+    console.log('was -180, setting 90');
+    rotateState = 90;
+    degrees = 90;
+  } else if (rotateState == 90) {
+    console.log('was 90, setting -17.5');
+    rotateState = -17.5;
+    degrees = 107.5;
+  } else if (rotateState == -17.5) {
+    console.log('was -17.5, setting -180');
+    rotateState = -180;
+    degrees = 162.5;
+  }
+
+  var time = (degrees / dps) * 1000;
+  console.log(time);
+
+  map.easeTo({
+    bearing: rotateState,
+    duration: time,
+    easing: function(t){return t;}
+  });
+});
+</script>
+
+</body>
+</html>
